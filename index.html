@@ -389,9 +389,10 @@ html, body {
   <div class="controles">
     <div class="interim-preview" id="interimPreview"></div>
     <button class="mic-btn" id="micBtn"
-  onmousedown="iniciarMic()" onmouseup="pararMic()" onmouseleave="pararMic()"
-  ontouchstart="event.preventDefault(); iniciarMic()" ontouchend="event.preventDefault(); pararMic()"
-  ontouchcancel="event.preventDefault(); pararMic()">
+  onpointerdown="event.preventDefault(); iniciarMic()"
+  onpointerup="event.preventDefault(); pararMic()"
+  onpointerleave="pararMic()"
+  onpointercancel="pararMic()">
   🎙️ Segure para falar
 </button>
     <div class="participantes-row" id="participantesRow">
@@ -577,7 +578,7 @@ window.iniciarMic = function() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = IDIOMAS[meuIdioma].speechLang;
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.interimResults = true;
 
   // Acumula fragmentos e envia após 2s de silêncio
@@ -643,7 +644,9 @@ window.iniciarMic = function() {
   };
 
   recognition.onend = () => {
-    // Não reiniciar automaticamente — usuário controla segurando o botão
+    // Frase processada — enviar o que ficou pendente e parar
+    clearTimeout(timerFrase);
+    enviarFrase(frasePendente);
     if (isGravando) pararMic();
   };
 
