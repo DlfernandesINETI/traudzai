@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Traduzaí — Conversas sem fronteiras</title>
+<title>Traduzaí — Tradutor Simultâneo</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
@@ -15,7 +15,6 @@
   --surface2: #162011;
   --border: #1e3318;
   --accent: #ffc20e;
-  --accent2: #f59e0b;
   --text: #f0f0e8;
   --muted: #7a8a72;
   --green: #22c55e;
@@ -28,7 +27,6 @@ html, body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 .screen { display: none; min-height: 100vh; flex-direction: column; }
@@ -43,62 +41,11 @@ html, body {
   text-align: center;
 }
 
-.logo { font-size: 4rem; line-height: 1; }
+.logo { font-size: 4rem; }
+.app-title { font-size: 2.2rem; font-weight: 900; color: var(--accent); }
+.app-sub { font-size: 0.88rem; color: var(--muted); max-width: 300px; line-height: 1.6; }
 
-.app-title {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: var(--accent);
-  letter-spacing: -0.03em;
-}
-
-.app-sub {
-  font-size: 0.88rem;
-  color: var(--muted);
-  max-width: 300px;
-  line-height: 1.6;
-}
-
-.idioma-select-wrap {
-  width: 100%;
-  max-width: 340px;
-}
-
-.idioma-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.idioma-select {
-  width: 100%;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.idioma-select:focus { border-color: var(--accent); }
-
-.form-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  width: 100%;
-  max-width: 340px;
-}
+.form-wrap { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; max-width: 340px; }
 
 .form-input {
   background: var(--surface);
@@ -112,11 +59,26 @@ html, body {
   outline: none;
   width: 100%;
   text-align: center;
-  letter-spacing: 0.05em;
 }
 
 .form-input:focus { border-color: var(--accent); }
 .form-input.codigo { text-transform: uppercase; letter-spacing: 0.2em; font-size: 1.1rem; }
+
+.idioma-select {
+  width: 100%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+
+.idioma-select:focus { border-color: var(--accent); }
 
 .btn-entrar {
   background: var(--accent);
@@ -129,12 +91,9 @@ html, body {
   font-weight: 900;
   cursor: pointer;
   width: 100%;
-  transition: opacity 0.15s, transform 0.1s;
 }
 
-.btn-entrar:active { transform: scale(0.97); }
-
-.idiomas-lista {
+.idiomas-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -142,7 +101,7 @@ html, body {
   max-width: 340px;
 }
 
-.idioma-pill {
+.pill {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 99px;
@@ -182,9 +141,8 @@ html, body {
   font-weight: 700;
 }
 
-.sala-info { font-size: 0.78rem; color: var(--muted); }
 .sala-codigo { font-weight: 900; color: var(--accent); font-size: 0.9rem; }
-.sala-idioma { font-size: 0.72rem; }
+.sala-idioma { font-size: 0.72rem; color: var(--muted); }
 
 .status-pill {
   display: flex;
@@ -196,147 +154,142 @@ html, body {
   border-radius: 99px;
   background: var(--surface2);
   border: 1px solid var(--border);
-  color: var(--muted);
 }
 
-.dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--muted);
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.dot.ativo {
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: pulse 1s ease-in-out infinite;
 }
 
-.dot.online {
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: pulse 1.5s ease-in-out infinite;
-}
+.dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
 
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* MENSAGENS */
-.mensagens {
+/* LEGENDAS */
+.legendas-area {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 1rem 0.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
-.msg-wrap {
-  display: flex;
-  flex-direction: column;
-  max-width: 85%;
+.legenda-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
 }
 
-.msg-wrap.minha { align-self: flex-end; align-items: flex-end; }
-.msg-wrap.outra { align-self: flex-start; align-items: flex-start; }
+.legenda-item.minha {
+  background: var(--surface2);
+  border-left-color: var(--green);
+}
 
-.msg-autor {
-  font-size: 0.68rem;
+.legenda-autor {
+  font-size: 0.72rem;
   font-weight: 800;
   color: var(--muted);
-  margin-bottom: 0.2rem;
-  padding: 0 0.4rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.msg-balao {
-  border-radius: 18px;
-  padding: 0.8rem 1.1rem;
-  max-width: 100%;
-  word-break: break-word;
-}
-
-.msg-wrap.minha .msg-balao {
-  background: var(--accent);
-  color: #000;
-  border-bottom-right-radius: 4px;
+.legenda-texto {
+  font-size: 1.1rem;
   font-weight: 700;
-}
-
-.msg-wrap.outra .msg-balao {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  line-height: 1.5;
   color: var(--text);
-  border-bottom-left-radius: 4px;
 }
 
-.msg-original {
-  font-size: 0.68rem;
+.legenda-original {
+  font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 0.3rem;
-  padding: 0 0.4rem;
+  margin-top: 0.4rem;
   font-style: italic;
 }
 
-.msg-texto { font-size: 0.92rem; line-height: 1.5; }
-.msg-hora { font-size: 0.62rem; color: rgba(0,0,0,0.4); margin-top: 0.3rem; text-align: right; }
-.msg-wrap.outra .msg-hora { color: var(--muted); }
+.legenda-interim {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.3rem;
+}
 
-/* RTL para árabe */
+/* RTL */
 .rtl { direction: rtl; text-align: right; }
 
-/* Digitando */
-.digitando-aviso {
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-style: italic;
-  padding: 0 1rem 0.3rem;
-  flex-shrink: 0;
-}
-
-/* INPUT */
-.input-area {
+/* CONTROLES */
+.controles {
   background: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.2rem;
   display: flex;
-  gap: 0.6rem;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 0.8rem;
   flex-shrink: 0;
 }
 
-.msg-input {
-  flex: 1;
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 0.75rem 1rem;
-  font-family: inherit;
-  font-size: 0.92rem;
-  color: var(--text);
-  outline: none;
-  resize: none;
-  max-height: 100px;
-  line-height: 1.4;
-}
-
-.msg-input:focus { border-color: var(--accent); }
-
-.btn-send {
-  width: 44px; height: 44px;
-  background: var(--accent);
+.mic-btn {
+  width: 100%;
+  padding: 1.1rem;
+  border-radius: 16px;
   border: none;
-  border-radius: 12px;
-  font-size: 1.2rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 900;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   transition: transform 0.1s;
+  background: var(--accent);
+  color: #000;
 }
 
-.btn-send:active { transform: scale(0.93); }
+.mic-btn.gravando {
+  background: var(--red);
+  color: white;
+  animation: micPulse 1.5s ease-in-out infinite;
+}
 
-/* SISTEMA */
-.msg-sistema {
+@keyframes micPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+}
+
+.mic-btn:active { transform: scale(0.97); }
+
+.interim-preview {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
   text-align: center;
+  min-height: 1.2em;
+}
+
+.participantes-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   font-size: 0.72rem;
   color: var(--muted);
-  background: var(--surface);
-  border-radius: 99px;
-  padding: 0.3rem 0.9rem;
-  align-self: center;
+}
+
+.part-badge {
+  background: var(--surface2);
   border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 /* Toast */
@@ -354,12 +307,20 @@ html, body {
   transition: transform 0.3s;
   z-index: 100;
   white-space: nowrap;
-  color: var(--text);
 }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.ok { border-color: var(--green); color: var(--green); }
 .toast.erro { border-color: var(--red); color: var(--red); }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+
+.empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.empty-text { font-size: 0.85rem; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -369,40 +330,36 @@ html, body {
   <div class="logo">🦜</div>
   <div>
     <div class="app-title">Traduzaí</div>
-    <p class="app-sub">Cada pessoa fala no seu idioma e lê tudo traduzido automaticamente em tempo real.</p>
+    <p class="app-sub">Fale no seu idioma. Todos entendem no deles. Em tempo real.</p>
   </div>
 
-  <div class="idioma-select-wrap">
-    <span class="idioma-label" id="lbl-idioma">Meu idioma</span>
-    <select class="idioma-select" id="meuIdioma" onchange="trocarUI()">
+  <div class="form-wrap">
+    <select class="idioma-select" id="meuIdioma">
       <option value="pt">🇧🇷 Português</option>
       <option value="en">🇺🇸 English</option>
       <option value="es">🇪🇸 Español</option>
       <option value="de">🇩🇪 Deutsch</option>
       <option value="fr">🇫🇷 Français</option>
+      <option value="zh">🇨🇳 中文</option>
       <option value="ar">🇸🇦 العربية</option>
       <option value="pl">🇵🇱 Polski</option>
       <option value="uk">🇺🇦 Українська</option>
-      <option value="zh">🇨🇳 中文</option>
     </select>
-  </div>
-
-  <div class="form-wrap">
     <input class="form-input" id="meuNome" maxlength="30" placeholder="Seu nome">
     <input class="form-input codigo" id="codigoSala" maxlength="8" placeholder="SALA01" oninput="this.value=this.value.toUpperCase()">
-    <button class="btn-entrar" id="btnEntrar" onclick="entrar()">Entrar →</button>
+    <button class="btn-entrar" onclick="entrar()">Entrar na sala →</button>
   </div>
 
-  <div class="idiomas-lista">
-    <span class="idioma-pill">🇧🇷 PT</span>
-    <span class="idioma-pill">🇺🇸 EN</span>
-    <span class="idioma-pill">🇪🇸 ES</span>
-    <span class="idioma-pill">🇩🇪 DE</span>
-    <span class="idioma-pill">🇫🇷 FR</span>
-    <span class="idioma-pill">🇸🇦 AR</span>
-    <span class="idioma-pill">🇵🇱 PL</span>
-    <span class="idioma-pill">🇺🇦 UK</span>
-    <span class="idioma-pill">🇨🇳 ZH</span>
+  <div class="idiomas-pills">
+    <span class="pill">🇧🇷 PT</span>
+    <span class="pill">🇺🇸 EN</span>
+    <span class="pill">🇪🇸 ES</span>
+    <span class="pill">🇩🇪 DE</span>
+    <span class="pill">🇫🇷 FR</span>
+    <span class="pill">🇨🇳 ZH</span>
+    <span class="pill">🇸🇦 AR</span>
+    <span class="pill">🇵🇱 PL</span>
+    <span class="pill">🇺🇦 UK</span>
   </div>
 </div>
 
@@ -422,15 +379,20 @@ html, body {
     </div>
   </div>
 
-  <div class="mensagens" id="mensagens"></div>
-  <div class="digitando-aviso" id="digitandoAviso"></div>
+  <div class="legendas-area" id="legendasArea">
+    <div class="empty-state">
+      <div class="empty-icon">🎙️</div>
+      <div class="empty-text">Pressione o botão e fale.<br>Todos ouvirão no seu idioma.</div>
+    </div>
+  </div>
 
-  <div class="input-area">
-    <textarea class="msg-input" id="msgInput" rows="1"
-      placeholder="Digite sua mensagem…"
-      oninput="autoResize(this)"
-      onkeydown="handleKey(event)"></textarea>
-    <button class="btn-send" onclick="enviar()">➤</button>
+  <div class="controles">
+    <div class="interim-preview" id="interimPreview"></div>
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️ Pressionar para falar</button>
+    <div class="participantes-row" id="participantesRow">
+      <span>Sala:</span>
+      <span class="part-badge" id="partBadge">—</span>
+    </div>
   </div>
 </div>
 
@@ -452,15 +414,15 @@ const TRANSLATE_ENDPOINT = "https://traduzai.dlfernandes.workers.dev/";
 
 // ============ IDIOMAS ============
 const IDIOMAS = {
-  pt: { nome: "Português", bandeira: "🇧🇷", placeholder: "Digite sua mensagem…", entrar: "Entrar →", sair: "← Sair", lblIdioma: "Meu idioma", lblNome: "Seu nome", lblSala: "Código da sala", online: "Online" },
-  en: { nome: "English", bandeira: "🇺🇸", placeholder: "Type your message…", entrar: "Enter →", sair: "← Leave", lblIdioma: "My language", lblNome: "Your name", lblSala: "Room code", online: "Online" },
-  es: { nome: "Español", bandeira: "🇪🇸", placeholder: "Escribe tu mensaje…", entrar: "Entrar →", sair: "← Salir", lblIdioma: "Mi idioma", lblNome: "Tu nombre", lblSala: "Código de sala", online: "En línea" },
-  de: { nome: "Deutsch", bandeira: "🇩🇪", placeholder: "Nachricht eingeben…", entrar: "Betreten →", sair: "← Verlassen", lblIdioma: "Meine Sprache", lblNome: "Ihr Name", lblSala: "Raumcode", online: "Online" },
-  fr: { nome: "Français", bandeira: "🇫🇷", placeholder: "Tapez votre message…", entrar: "Entrer →", sair: "← Quitter", lblIdioma: "Ma langue", lblNome: "Votre nom", lblSala: "Code de salle", online: "En ligne" },
-  ar: { nome: "العربية", bandeira: "🇸🇦", placeholder: "اكتب رسالتك…", entrar: "دخول ←", sair: "→ خروج", lblIdioma: "لغتي", lblNome: "اسمك", lblSala: "رمز الغرفة", online: "متصل", rtl: true },
-  pl: { nome: "Polski", bandeira: "🇵🇱", placeholder: "Wpisz wiadomość…", entrar: "Wejdź →", sair: "← Wyjdź", lblIdioma: "Mój język", lblNome: "Twoje imię", lblSala: "Kod pokoju", online: "Online" },
-  uk: { nome: "Українська", bandeira: "🇺🇦", placeholder: "Введіть повідомлення…", entrar: "Увійти →", sair: "← Вийти", lblIdioma: "Моя мова", lblNome: "Ваше ім'я", lblSala: "Код кімнати", online: "Онлайн" },
-  zh: { nome: "中文", bandeira: "🇨🇳", placeholder: "请输入消息…", entrar: "进入 →", sair: "← 退出", lblIdioma: "我的语言", lblNome: "您的姓名", lblSala: "房间代码", online: "在线" },
+  pt: { nome: "Português", bandeira: "🇧🇷", speechLang: "pt-BR" },
+  en: { nome: "English", bandeira: "🇺🇸", speechLang: "en-US" },
+  es: { nome: "Español", bandeira: "🇪🇸", speechLang: "es-ES" },
+  de: { nome: "Deutsch", bandeira: "🇩🇪", speechLang: "de-DE" },
+  fr: { nome: "Français", bandeira: "🇫🇷", speechLang: "fr-FR" },
+  zh: { nome: "中文", bandeira: "🇨🇳", speechLang: "zh-CN" },
+  ar: { nome: "العربية", bandeira: "🇸🇦", speechLang: "ar-SA", rtl: true },
+  pl: { nome: "Polski", bandeira: "🇵🇱", speechLang: "pl-PL" },
+  uk: { nome: "Українська", bandeira: "🇺🇦", speechLang: "uk-UA" },
 };
 
 // ============ ESTADO ============
@@ -469,24 +431,13 @@ let meuNome = '';
 let codigoSala = '';
 let db = null;
 let salaRef = null;
-let cacheTraducoes = {};
+let presencaRef = null;
+let recognition = null;
+let isGravando = false;
 let msgIds = new Set();
-
-// ============ UI ============
-window.trocarUI = function() {
-  const sel = document.getElementById('meuIdioma');
-  meuIdioma = sel.value;
-  const info = IDIOMAS[meuIdioma];
-  document.getElementById('lbl-idioma').textContent = info.lblIdioma;
-  document.getElementById('meuNome').placeholder = info.lblNome;
-  document.getElementById('codigoSala').placeholder = info.lblSala || 'SALA01';
-  document.getElementById('btnEntrar').textContent = info.entrar;
-  if (info.rtl) {
-    document.body.style.direction = 'rtl';
-  } else {
-    document.body.style.direction = 'ltr';
-  }
-};
+let cacheTraducoes = {};
+let pushFn = null;
+let serverTimestampFn = null;
 
 // ============ ENTRAR ============
 window.entrar = async function() {
@@ -494,40 +445,43 @@ window.entrar = async function() {
   codigoSala = document.getElementById('codigoSala').value.trim().toUpperCase();
   meuIdioma = document.getElementById('meuIdioma').value;
 
-  if (!meuNome) { showToast(IDIOMAS[meuIdioma].lblNome + '?', 'erro'); return; }
-  if (codigoSala.length < 3) { showToast(IDIOMAS[meuIdioma].lblSala + '?', 'erro'); return; }
+  if (!meuNome) { showToast('Digite seu nome!', 'erro'); return; }
+  if (codigoSala.length < 3) { showToast('Digite um código de sala!', 'erro'); return; }
 
-  // Carregar Firebase dinamicamente
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js');
-    const { getDatabase, ref, push, onChildAdded, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
+    const { getDatabase, ref, push, onChildAdded, set, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
+
+    pushFn = push;
+    serverTimestampFn = serverTimestamp;
 
     const app = initializeApp(FIREBASE_CONFIG, 'traduzai-' + Date.now());
     db = getDatabase(app);
-    salaRef = ref(db, `traduzai/${codigoSala}/mensagens`);
+    salaRef = ref(db, `traduzai2/${codigoSala}/falas`);
+    presencaRef = ref(db, `traduzai2/${codigoSala}/presenca/${meuNome}`);
 
-    // Configurar tela da sala
-    document.getElementById('topSala').textContent = codigoSala;
-    document.getElementById('topIdioma').textContent = IDIOMAS[meuIdioma].bandeira + ' ' + IDIOMAS[meuIdioma].nome;
-    document.getElementById('statusLabel').textContent = IDIOMAS[meuIdioma].online;
-    document.getElementById('msgInput').placeholder = IDIOMAS[meuIdioma].placeholder;
-    document.body.style.direction = IDIOMAS[meuIdioma].rtl ? 'rtl' : 'ltr';
+    // Registrar presença
+    set(presencaRef, {
+      nome: meuNome,
+      idioma: meuIdioma,
+      bandeira: IDIOMAS[meuIdioma].bandeira,
+      ts: Date.now()
+    });
 
-    // Escutar mensagens
+    // Escutar falas
     onChildAdded(salaRef, async (snapshot) => {
-      const msg = snapshot.val();
+      const fala = snapshot.val();
       const id = snapshot.key;
       if (msgIds.has(id)) return;
       msgIds.add(id);
-      await exibirMensagem(msg, id);
+      await exibirFala(fala);
     });
 
-    // Mensagem de entrada
-    push(salaRef, {
-      tipo: 'sistema',
-      texto: `${meuNome} ${IDIOMAS[meuIdioma].bandeira} entrou`,
-      ts: Date.now()
-    });
+    // Configurar tela
+    document.getElementById('topSala').textContent = codigoSala;
+    document.getElementById('topIdioma').textContent = IDIOMAS[meuIdioma].bandeira + ' ' + IDIOMAS[meuIdioma].nome;
+    document.getElementById('partBadge').textContent = codigoSala;
+    if (IDIOMAS[meuIdioma].rtl) document.body.style.direction = 'rtl';
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('sala').classList.add('active');
@@ -537,112 +491,148 @@ window.entrar = async function() {
   }
 };
 
-// ============ EXIBIR MENSAGEM ============
-async function exibirMensagem(msg, id) {
-  const container = document.getElementById('mensagens');
+// ============ EXIBIR FALA ============
+async function exibirFala(fala) {
+  const area = document.getElementById('legendasArea');
+  const emptyState = area.querySelector('.empty-state');
+  if (emptyState) emptyState.remove();
 
-  if (msg.tipo === 'sistema') {
-    const el = document.createElement('div');
-    el.className = 'msg-sistema';
-    el.textContent = msg.texto;
-    container.appendChild(el);
-    container.scrollTop = container.scrollHeight;
-    return;
-  }
-
-  const eMinha = msg.autor === meuNome;
-  const textoOriginal = msg.texto;
-  const idiomaOrigem = msg.idioma || 'pt';
+  const eMinha = fala.autor === meuNome;
+  const idiomaOrigem = fala.idioma;
+  let textoExibir = fala.texto;
 
   // Traduzir se necessário
-  let textoTraduzido = textoOriginal;
   if (idiomaOrigem !== meuIdioma) {
-    const cacheKey = `${id}_${meuIdioma}`;
+    const cacheKey = `${fala.id || fala.ts}_${meuIdioma}`;
     if (cacheTraducoes[cacheKey]) {
-      textoTraduzido = cacheTraducoes[cacheKey];
+      textoExibir = cacheTraducoes[cacheKey];
     } else {
       try {
         const resp = await fetch(TRANSLATE_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            texto: textoOriginal,
+            texto: fala.texto,
             source: idiomaOrigem,
             target: meuIdioma
           })
         });
         if (resp.ok) {
           const data = await resp.json();
-          textoTraduzido = data.traducao || textoOriginal;
-          cacheTraducoes[cacheKey] = textoTraduzido;
+          textoExibir = data.traducao || fala.texto;
+          cacheTraducoes[cacheKey] = textoExibir;
         }
-      } catch(e) {
-        textoTraduzido = textoOriginal;
-      }
+      } catch(e) { textoExibir = fala.texto; }
     }
   }
 
   const isRTL = IDIOMAS[meuIdioma]?.rtl;
-  const hora = new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const item = document.createElement('div');
+  item.className = `legenda-item ${eMinha ? 'minha' : ''} ${isRTL ? 'rtl' : ''}`;
 
-  const wrap = document.createElement('div');
-  wrap.className = `msg-wrap ${eMinha ? 'minha' : 'outra'}`;
-
-  wrap.innerHTML = `
-    ${!eMinha ? `<div class="msg-autor">${msg.autor} ${IDIOMAS[msg.idioma]?.bandeira || ''}</div>` : ''}
-    <div class="msg-balao ${isRTL ? 'rtl' : ''}">
-      <div class="msg-texto">${textoTraduzido}</div>
-      <div class="msg-hora">${hora}</div>
+  item.innerHTML = `
+    <div class="legenda-autor">
+      <span>${fala.bandeira}</span>
+      <span>${fala.autor}</span>
+      ${!eMinha && idiomaOrigem !== meuIdioma ? `<span style="opacity:0.5">→ ${IDIOMAS[meuIdioma]?.bandeira}</span>` : ''}
     </div>
-    ${!eMinha && idiomaOrigem !== meuIdioma ? `<div class="msg-original">${textoOriginal}</div>` : ''}
+    <div class="legenda-texto">${textoExibir}</div>
+    ${!eMinha && idiomaOrigem !== meuIdioma ? `<div class="legenda-original">${fala.texto}</div>` : ''}
   `;
 
-  container.appendChild(wrap);
-  container.scrollTop = container.scrollHeight;
+  area.appendChild(item);
+  area.scrollTop = area.scrollHeight;
 }
 
-// ============ ENVIAR ============
-window.enviar = async function() {
-  const input = document.getElementById('msgInput');
-  const texto = input.value.trim();
-  if (!texto || !salaRef) return;
-
-  const { push } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
-
-  push(salaRef, {
-    tipo: 'msg',
-    autor: meuNome,
-    texto: texto,
-    idioma: meuIdioma,
-    ts: Date.now()
-  });
-
-  input.value = '';
-  input.style.height = 'auto';
+// ============ MICROFONE ============
+window.toggleMic = function() {
+  if (isGravando) pararMic();
+  else iniciarMic();
 };
 
-window.handleKey = function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    window.enviar();
+function iniciarMic() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast('Use o Google Chrome!', 'erro');
+    return;
   }
-};
 
-window.autoResize = function(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-};
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = IDIOMAS[meuIdioma].speechLang;
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isGravando = true;
+    const btn = document.getElementById('micBtn');
+    btn.textContent = '⏹ Parar de falar';
+    btn.classList.add('gravando');
+    document.getElementById('statusDot').classList.remove('online');
+    document.getElementById('statusDot').classList.add('ativo');
+    document.getElementById('statusLabel').textContent = 'Ao vivo';
+  };
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let final = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
+      else interim += event.results[i][0].transcript;
+    }
+
+    document.getElementById('interimPreview').textContent = interim || final;
+
+    if (final.trim() && pushFn && salaRef) {
+      pushFn(salaRef, {
+        autor: meuNome,
+        idioma: meuIdioma,
+        bandeira: IDIOMAS[meuIdioma].bandeira,
+        texto: final.trim(),
+        ts: Date.now()
+      });
+      document.getElementById('interimPreview').textContent = '';
+    }
+  };
+
+  recognition.onend = () => {
+    if (isGravando) {
+      setTimeout(() => { try { recognition.start(); } catch(e) {} }, 300);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') showToast('Permita o microfone nas configurações!', 'erro');
+  };
+
+  try { recognition.start(); } catch(e) { showToast('Erro ao iniciar microfone', 'erro'); }
+}
+
+function pararMic() {
+  isGravando = false;
+  if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+  const btn = document.getElementById('micBtn');
+  btn.textContent = '🎙️ Pressionar para falar';
+  btn.classList.remove('gravando');
+  document.getElementById('statusDot').classList.add('online');
+  document.getElementById('statusDot').classList.remove('ativo');
+  document.getElementById('statusLabel').textContent = 'Online';
+  document.getElementById('interimPreview').textContent = '';
+}
 
 window.sair = function() {
+  pararMic();
   msgIds.clear();
   cacheTraducoes = {};
-  document.getElementById('mensagens').innerHTML = '';
+  document.getElementById('legendasArea').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">🎙️</div>
+      <div class="empty-text">Pressione o botão e fale.<br>Todos ouvirão no seu idioma.</div>
+    </div>`;
+  document.body.style.direction = 'ltr';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('splash').classList.add('active');
-  document.body.style.direction = 'ltr';
 };
 
-// ============ TOAST ============
 window.showToast = function(msg, tipo) {
   const t = document.getElementById('toast');
   t.textContent = msg;
