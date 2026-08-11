@@ -509,23 +509,30 @@ async function exibirFala(fala) {
       textoExibir = cacheTraducoes[cacheKey];
     } else {
       try {
+        console.log(`Traduzindo: "${fala.texto}" de ${idiomaOrigem} para ${meuIdioma}`);
         const resp = await fetch(TRANSLATE_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            texto: fala.texto,    // texto original na língua de quem falou
-            source: idiomaOrigem, // idioma de quem falou
-            target: meuIdioma    // meu idioma (para onde traduzir)
+            texto: fala.texto,
+            source: idiomaOrigem,
+            target: meuIdioma
           })
         });
+        console.log('Status Worker:', resp.status);
         if (resp.ok) {
           const data = await resp.json();
+          console.log('Tradução recebida:', data);
           textoExibir = data.traducao || fala.texto;
           cacheTraducoes[cacheKey] = textoExibir;
+        } else {
+          const err = await resp.text();
+          console.error('Worker erro:', err);
+          textoExibir = '[Sem tradução] ' + fala.texto;
         }
       } catch(e) {
-        console.error('Erro na tradução:', e);
-        textoExibir = fala.texto; // fallback: mostra original
+        console.error('Erro na tradução:', e.message);
+        textoExibir = '[Erro de tradução] ' + fala.texto;
       }
     }
   }
@@ -535,14 +542,18 @@ async function exibirFala(fala) {
   const item = document.createElement('div');
   item.className = `legenda-item ${eMinha ? 'minha' : ''} ${isRTL ? 'rtl' : ''}`;
 
+  // textoExibir = traduzido para meu idioma (ou original se mesmo idioma)
+  // fala.texto = texto original de quem falou
+  const mostrarOriginal = !eMinha && idiomaOrigem !== meuIdioma;
+
   item.innerHTML = `
     <div class="legenda-autor">
       <span>${fala.bandeira}</span>
       <span>${fala.autor}</span>
-      ${!eMinha && idiomaOrigem !== meuIdioma ? `<span style="opacity:0.5">→ ${IDIOMAS[meuIdioma]?.bandeira}</span>` : ''}
+      ${mostrarOriginal ? `<span style="opacity:0.5;font-size:0.65rem"> → ${IDIOMAS[meuIdioma]?.bandeira} ${IDIOMAS[meuIdioma]?.nome}</span>` : ''}
     </div>
     <div class="legenda-texto">${textoExibir}</div>
-    ${!eMinha && idiomaOrigem !== meuIdioma ? `<div class="legenda-original">${fala.texto}</div>` : ''}
+    ${mostrarOriginal ? `<div class="legenda-original">Original: ${fala.texto}</div>` : ''}
   `;
 
   area.appendChild(item);
@@ -567,10 +578,10 @@ function iniciarMic() {
   recognition.continuous = true;
   recognition.interimResults = true;
 
-  let ultimoIndice = 0;
+  const textoJaEnviado = new Set();
+  let ultimoTextoFinal = '';
 
   recognition.onstart = () => {
-    ultimoIndice = 0;
     isGravando = true;
     const btn = document.getElementById('micBtn');
     btn.textContent = '⏹ Parar de falar';
@@ -585,25 +596,37 @@ function iniciarMic() {
     let final = '';
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (i < ultimoIndice) continue;
+      const t = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        final += event.results[i][0].transcript + ' ';
-        ultimoIndice = i + 1;
+        final += t + ' ';
       } else {
-        interim += event.results[i][0].transcript;
+        interim += t;
       }
     }
 
-    document.getElementById('interimPreview').textContent = interim || (final ? '✓ ' + final : '');
+    document.getElementById('interimPreview').textContent = interim || '';
 
     if (final.trim() && pushFn && salaRef) {
-      pushFn(salaRef, {
-        autor: meuNome,
-        idioma: meuIdioma,
-        bandeira: IDIOMAS[meuIdioma].bandeira,
-        texto: final.trim(),
-        ts: Date.now()
-      });
+      const textoLimpo = final.trim();
+      // Verificar duplicação: ignorar se igual ou contido no último texto enviado
+      const isDuplicado = textoJaEnviado.has(textoLimpo) ||
+        ultimoTextoFinal.includes(textoLimpo) ||
+        (textoLimpo.includes(ultimoTextoFinal) && ultimoTextoFinal.length > 3);
+
+      if (!isDuplicado) {
+        textoJaEnviado.add(textoLimpo);
+        ultimoTextoFinal = textoLimpo;
+        // Limpar cache após 10 entradas para não crescer indefinidamente
+        if (textoJaEnviado.size > 10) textoJaEnviado.clear();
+
+        pushFn(salaRef, {
+          autor: meuNome,
+          idioma: meuIdioma,
+          bandeira: IDIOMAS[meuIdioma].bandeira,
+          texto: textoLimpo,
+          ts: Date.now()
+        });
+      }
       document.getElementById('interimPreview').textContent = '';
     }
   };
