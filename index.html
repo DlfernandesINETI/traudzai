@@ -583,14 +583,26 @@ function iniciarMic() {
   let timerEnvio = null;
   let textoUltimoEnviado = '';
 
+  const historicoEnviado = new Set();
+
+  function hashTexto(t) {
+    // Hash simples: primeiras 20 chars + últimas 10 chars + tamanho
+    return t.slice(0, 20) + t.slice(-10) + t.length;
+  }
+
   function enviarBuffer() {
     if (!bufferTexto.trim() || !pushFn || !salaRef) return;
     const textoFinal = bufferTexto.trim();
     bufferTexto = '';
 
-    // Evitar envio de texto idêntico ao último
-    if (textoFinal === textoUltimoEnviado) return;
-    textoUltimoEnviado = textoFinal;
+    const h = hashTexto(textoFinal);
+
+    // Ignorar se já enviamos esse texto antes
+    if (historicoEnviado.has(h)) return;
+    historicoEnviado.add(h);
+
+    // Limpar histórico após 20 entradas
+    if (historicoEnviado.size > 20) historicoEnviado.clear();
 
     pushFn(salaRef, {
       autor: meuNome,
