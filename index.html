@@ -388,7 +388,12 @@ html, body {
 
   <div class="controles">
     <div class="interim-preview" id="interimPreview"></div>
-    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️ Pressionar para falar</button>
+    <button class="mic-btn" id="micBtn"
+  onmousedown="iniciarMic()" onmouseup="pararMic()" onmouseleave="pararMic()"
+  ontouchstart="event.preventDefault(); iniciarMic()" ontouchend="event.preventDefault(); pararMic()"
+  ontouchcancel="event.preventDefault(); pararMic()">
+  🎙️ Segure para falar
+</button>
     <div class="participantes-row" id="participantesRow">
       <span>Sala:</span>
       <span class="part-badge" id="partBadge">—</span>
@@ -561,12 +566,9 @@ async function exibirFala(fala) {
 }
 
 // ============ MICROFONE ============
-window.toggleMic = function() {
-  if (isGravando) pararMic();
-  else iniciarMic();
-};
+// Botão press-and-hold — não precisa de toggle
 
-function iniciarMic() {
+window.iniciarMic = function() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     showToast('Use o Google Chrome!', 'erro');
     return;
@@ -609,12 +611,10 @@ function iniciarMic() {
 
   recognition.onstart = () => {
     isGravando = true;
-    // Detectar reinício do Android: se há frase pendente, ela já foi enviada
-    // Não acumular mais no buffer após reinício
     frasePendente = '';
     ultimoInterim = '';
     const btn = document.getElementById('micBtn');
-    btn.textContent = '⏹ Parar de falar';
+    btn.textContent = '🔴 Ouvindo…';
     btn.classList.add('gravando');
     document.getElementById('statusDot').classList.remove('online');
     document.getElementById('statusDot').classList.add('ativo');
@@ -643,9 +643,8 @@ function iniciarMic() {
   };
 
   recognition.onend = () => {
-    if (isGravando) {
-      setTimeout(() => { try { recognition.start(); } catch(e) {} }, 300);
-    }
+    // Não reiniciar automaticamente — usuário controla segurando o botão
+    if (isGravando) pararMic();
   };
 
   recognition.onerror = (e) => {
@@ -653,22 +652,23 @@ function iniciarMic() {
   };
 
   try { recognition.start(); } catch(e) { showToast('Erro ao iniciar microfone', 'erro'); }
-}
+};
 
-function pararMic() {
+window.pararMic = function() {
+  if (!isGravando) return;
   isGravando = false;
   clearTimeout(timerFrase);
   enviarFrase(frasePendente);
-  textosFimDeGravacao.clear(); // limpar ao parar
+  textosFimDeGravacao.clear();
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
   const btn = document.getElementById('micBtn');
-  btn.textContent = '🎙️ Pressionar para falar';
+  btn.textContent = '🎙️ Segure para falar';
   btn.classList.remove('gravando');
   document.getElementById('statusDot').classList.add('online');
   document.getElementById('statusDot').classList.remove('ativo');
   document.getElementById('statusLabel').textContent = 'Online';
   document.getElementById('interimPreview').textContent = '';
-}
+};
 
 window.sair = function() {
   pararMic();
