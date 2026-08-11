@@ -19,7 +19,6 @@
   --muted: #7a8a72;
   --green: #22c55e;
   --red: #ef4444;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
 html, body {
@@ -27,12 +26,14 @@ html, body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .screen { display: none; min-height: 100vh; flex-direction: column; }
 .screen.active { display: flex; }
 
-/* ======= SPLASH ======= */
+/* SPLASH */
 #splash {
   align-items: center;
   justify-content: center;
@@ -47,7 +48,8 @@ html, body {
 
 .form-wrap { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; max-width: 340px; }
 
-.form-input {
+.idioma-select, .form-input {
+  width: 100%;
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 14px;
@@ -57,28 +59,11 @@ html, body {
   font-weight: 700;
   color: var(--text);
   outline: none;
-  width: 100%;
   text-align: center;
 }
 
-.form-input:focus { border-color: var(--accent); }
 .form-input.codigo { text-transform: uppercase; letter-spacing: 0.2em; font-size: 1.1rem; }
-
-.idioma-select {
-  width: 100%;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  cursor: pointer;
-}
-
-.idioma-select:focus { border-color: var(--accent); }
+.idioma-select:focus, .form-input:focus { border-color: var(--accent); }
 
 .btn-entrar {
   background: var(--accent);
@@ -93,27 +78,10 @@ html, body {
   width: 100%;
 }
 
-.idiomas-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  justify-content: center;
-  max-width: 340px;
-}
+.idiomas-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; max-width: 340px; }
+.pill { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 0.25rem 0.7rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
 
-.pill {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 99px;
-  padding: 0.25rem 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-/* ======= SALA ======= */
-#sala { flex-direction: column; }
-
+/* SALA */
 .topbar {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -126,8 +94,6 @@ html, body {
   z-index: 10;
   flex-shrink: 0;
 }
-
-.topbar-left { display: flex; align-items: center; gap: 0.6rem; }
 
 .back-btn {
   background: var(--surface2);
@@ -157,18 +123,12 @@ html, body {
 }
 
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
-.dot.ativo {
-  background: var(--red);
-  box-shadow: 0 0 8px var(--red);
-  animation: pulse 1s ease-in-out infinite;
-}
-
 .dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
-
+.dot.gravando { background: var(--red); box-shadow: 0 0 8px var(--red); animation: pulse 1s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* LEGENDAS */
-.legendas-area {
+/* MENSAGENS */
+.mensagens {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
@@ -177,7 +137,7 @@ html, body {
   gap: 0.8rem;
 }
 
-.legenda-item {
+.msg-item {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -185,12 +145,9 @@ html, body {
   border-left: 4px solid var(--accent);
 }
 
-.legenda-item.minha {
-  background: var(--surface2);
-  border-left-color: var(--green);
-}
+.msg-item.minha { background: var(--surface2); border-left-color: var(--green); }
 
-.legenda-autor {
+.msg-autor {
   font-size: 0.72rem;
   font-weight: 800;
   color: var(--muted);
@@ -200,96 +157,69 @@ html, body {
   gap: 0.4rem;
 }
 
-.legenda-texto {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.5;
-  color: var(--text);
-}
+.msg-texto { font-size: 1.1rem; font-weight: 700; line-height: 1.5; }
+.msg-original { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
 
-.legenda-original {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 0.4rem;
-  font-style: italic;
-}
-
-.legenda-interim {
-  font-size: 0.95rem;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: 0.3rem;
-}
-
-/* RTL */
-.rtl { direction: rtl; text-align: right; }
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.empty-text { font-size: 0.85rem; line-height: 1.7; }
 
 /* CONTROLES */
 .controles {
   background: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 1rem 1.2rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.8rem;
   flex-shrink: 0;
 }
 
+.mic-status { font-size: 0.78rem; color: var(--muted); font-weight: 700; text-align: center; min-height: 1.2em; }
+
+/* Botão grande estilo WhatsApp */
+.mic-btn-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+
 .mic-btn {
-  width: 100%;
-  padding: 1.1rem;
-  border-radius: 16px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
   border: none;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 900;
+  font-size: 2rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  transition: transform 0.1s;
-  background: var(--accent);
-  color: #000;
+  transition: transform 0.1s, background 0.2s;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  box-shadow: 0 4px 20px rgba(255,194,14,0.4);
 }
 
 .mic-btn.gravando {
   background: var(--red);
-  color: white;
-  animation: micPulse 1.5s ease-in-out infinite;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 12px rgba(239,68,68,0.2), 0 4px 20px rgba(239,68,68,0.4);
+  animation: micPulse 1s ease-in-out infinite;
 }
 
 @keyframes micPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+  0%,100% { box-shadow: 0 0 0 8px rgba(239,68,68,0.2); }
+  50% { box-shadow: 0 0 0 20px rgba(239,68,68,0); }
 }
 
-.mic-btn:active { transform: scale(0.97); }
+.mic-hint { font-size: 0.72rem; color: var(--muted); text-align: center; }
 
-.interim-preview {
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-style: italic;
-  text-align: center;
-  min-height: 1.2em;
-}
-
-.participantes-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
-  color: var(--muted);
-}
-
-.part-badge {
+.sala-badge {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 99px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
+  padding: 0.2rem 0.8rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  color: var(--muted);
 }
 
 /* Toast */
@@ -308,19 +238,9 @@ html, body {
   z-index: 100;
   white-space: nowrap;
 }
-
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.ok { border-color: var(--green); color: var(--green); }
 .toast.erro { border-color: var(--red); color: var(--red); }
-
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--muted);
-}
-
-.empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-.empty-text { font-size: 0.85rem; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -332,7 +252,6 @@ html, body {
     <div class="app-title">Traduzaí</div>
     <p class="app-sub">Fale no seu idioma. Todos entendem no deles. Em tempo real.</p>
   </div>
-
   <div class="form-wrap">
     <select class="idioma-select" id="meuIdioma">
       <option value="pt">🇧🇷 Português</option>
@@ -349,16 +268,11 @@ html, body {
     <input class="form-input codigo" id="codigoSala" maxlength="8" placeholder="SALA01" oninput="this.value=this.value.toUpperCase()">
     <button class="btn-entrar" onclick="entrar()">Entrar na sala →</button>
   </div>
-
   <div class="idiomas-pills">
-    <span class="pill">🇧🇷 PT</span>
-    <span class="pill">🇺🇸 EN</span>
-    <span class="pill">🇪🇸 ES</span>
-    <span class="pill">🇩🇪 DE</span>
-    <span class="pill">🇫🇷 FR</span>
-    <span class="pill">🇨🇳 ZH</span>
-    <span class="pill">🇸🇦 AR</span>
-    <span class="pill">🇵🇱 PL</span>
+    <span class="pill">🇧🇷 PT</span><span class="pill">🇺🇸 EN</span>
+    <span class="pill">🇪🇸 ES</span><span class="pill">🇩🇪 DE</span>
+    <span class="pill">🇫🇷 FR</span><span class="pill">🇨🇳 ZH</span>
+    <span class="pill">🇸🇦 AR</span><span class="pill">🇵🇱 PL</span>
     <span class="pill">🇺🇦 UK</span>
   </div>
 </div>
@@ -366,7 +280,7 @@ html, body {
 <!-- SALA -->
 <div id="sala" class="screen">
   <div class="topbar">
-    <div class="topbar-left">
+    <div style="display:flex;align-items:center;gap:0.6rem">
       <button class="back-btn" onclick="sair()">← Sair</button>
       <div>
         <div class="sala-codigo" id="topSala">—</div>
@@ -379,27 +293,26 @@ html, body {
     </div>
   </div>
 
-  <div class="legendas-area" id="legendasArea">
+  <div class="mensagens" id="mensagens">
     <div class="empty-state">
       <div class="empty-icon">🎙️</div>
-      <div class="empty-text">Pressione o botão e fale.<br>Todos ouvirão no seu idioma.</div>
+      <div class="empty-text">Segure o botão e fale.<br>Todos receberão no seu idioma.</div>
     </div>
   </div>
 
   <div class="controles">
-    <div class="interim-preview" id="interimPreview"></div>
-    <div class="participantes-row" id="participantesRow">
-      <span>Sala:</span>
-      <span class="part-badge" id="partBadge">—</span>
-      <span class="part-badge" style="background:var(--surface2);color:var(--green)" id="micStatus">🎙️ Ao vivo</span>
+    <div class="mic-status" id="micStatus">Segure o botão para falar</div>
+    <div class="mic-btn-wrap">
+      <button class="mic-btn" id="micBtn">🎙️</button>
     </div>
+    <div class="mic-hint">Segure para falar • Solte para enviar</div>
+    <span class="sala-badge" id="salaBadge">—</span>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script type="module">
-// ============ CONFIG ============
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDJMGcPp6iz4NnjSiDU7ihqQMkTX2rqr0A",
   authDomain: "ambient-axiom-384901.firebaseapp.com",
@@ -410,288 +323,257 @@ const FIREBASE_CONFIG = {
   appId: "1:914809989128:web:1415bf7a139fb9899649bd"
 };
 
-const TRANSLATE_ENDPOINT = "https://traduzai.dlfernandes.workers.dev/";
+const WORKER_URL = "https://traduzai.dlfernandes.workers.dev/";
 
-// ============ IDIOMAS ============
 const IDIOMAS = {
-  pt: { nome: "Português", bandeira: "🇧🇷", speechLang: "pt-BR" },
-  en: { nome: "English", bandeira: "🇺🇸", speechLang: "en-US" },
-  es: { nome: "Español", bandeira: "🇪🇸", speechLang: "es-ES" },
-  de: { nome: "Deutsch", bandeira: "🇩🇪", speechLang: "de-DE" },
-  fr: { nome: "Français", bandeira: "🇫🇷", speechLang: "fr-FR" },
-  zh: { nome: "中文", bandeira: "🇨🇳", speechLang: "zh-CN" },
-  ar: { nome: "العربية", bandeira: "🇸🇦", speechLang: "ar-SA", rtl: true },
-  pl: { nome: "Polski", bandeira: "🇵🇱", speechLang: "pl-PL" },
-  uk: { nome: "Українська", bandeira: "🇺🇦", speechLang: "uk-UA" },
+  pt: { nome: "Português", bandeira: "🇧🇷" },
+  en: { nome: "English", bandeira: "🇺🇸" },
+  es: { nome: "Español", bandeira: "🇪🇸" },
+  de: { nome: "Deutsch", bandeira: "🇩🇪" },
+  fr: { nome: "Français", bandeira: "🇫🇷" },
+  zh: { nome: "中文", bandeira: "🇨🇳" },
+  ar: { nome: "العربية", bandeira: "🇸🇦", rtl: true },
+  pl: { nome: "Polski", bandeira: "🇵🇱" },
+  uk: { nome: "Українська", bandeira: "🇺🇦" },
 };
 
-// ============ ESTADO ============
 let meuIdioma = 'pt';
 let meuNome = '';
 let codigoSala = '';
 let db = null;
 let salaRef = null;
-let presencaRef = null;
-let recognition = null;
-let isGravando = false;
+let pushFn = null;
 let msgIds = new Set();
 let cacheTraducoes = {};
-let pushFn = null;
-let serverTimestampFn = null;
 
-// ============ ENTRAR ============
+// Gravação
+let mediaRecorder = null;
+let audioChunks = [];
+let isGravando = false;
+let stream = null;
+
+// ===== ENTRAR =====
 window.entrar = async function() {
   meuNome = document.getElementById('meuNome').value.trim();
   codigoSala = document.getElementById('codigoSala').value.trim().toUpperCase();
   meuIdioma = document.getElementById('meuIdioma').value;
 
   if (!meuNome) { showToast('Digite seu nome!', 'erro'); return; }
-  if (codigoSala.length < 3) { showToast('Digite um código de sala!', 'erro'); return; }
+  if (codigoSala.length < 3) { showToast('Digite um código!', 'erro'); return; }
+
+  // Pedir permissão do microfone antes de entrar
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e) {
+    showToast('Permita o microfone para usar o app!', 'erro');
+    return;
+  }
 
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js');
-    const { getDatabase, ref, push, onChildAdded, set, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
+    const { getDatabase, ref, push, onChildAdded } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
 
     pushFn = push;
-    serverTimestampFn = serverTimestamp;
-
     const app = initializeApp(FIREBASE_CONFIG, 'traduzai-' + Date.now());
     db = getDatabase(app);
-    salaRef = ref(db, `traduzai2/${codigoSala}/falas`);
-    presencaRef = ref(db, `traduzai2/${codigoSala}/presenca/${meuNome}`);
+    salaRef = ref(db, `traduzai3/${codigoSala}/msgs`);
 
-    // Registrar presença
-    set(presencaRef, {
-      nome: meuNome,
-      idioma: meuIdioma,
-      bandeira: IDIOMAS[meuIdioma].bandeira,
-      ts: Date.now()
-    });
-
-    // Escutar falas
     onChildAdded(salaRef, async (snapshot) => {
-      const fala = snapshot.val();
+      const msg = snapshot.val();
       const id = snapshot.key;
       if (msgIds.has(id)) return;
       msgIds.add(id);
-      await exibirFala(fala);
+      await exibirMsg(msg);
     });
 
-    // Configurar tela
     document.getElementById('topSala').textContent = codigoSala;
     document.getElementById('topIdioma').textContent = IDIOMAS[meuIdioma].bandeira + ' ' + IDIOMAS[meuIdioma].nome;
-    document.getElementById('partBadge').textContent = codigoSala;
-    if (IDIOMAS[meuIdioma].rtl) document.body.style.direction = 'rtl';
+    document.getElementById('salaBadge').textContent = codigoSala;
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('sala').classList.add('active');
 
-    // Iniciar microfone automaticamente
-    setTimeout(() => iniciarMic(), 500);
+    configurarBotaoMic();
 
   } catch(e) {
     showToast('Erro ao conectar: ' + e.message, 'erro');
   }
 };
 
-// ============ EXIBIR FALA ============
-async function exibirFala(fala) {
-  const area = document.getElementById('legendasArea');
-  const emptyState = area.querySelector('.empty-state');
+// ===== BOTÃO MIC (press and hold) =====
+function configurarBotaoMic() {
+  const btn = document.getElementById('micBtn');
+
+  // Pointer events — funciona em celular e computador
+  btn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    btn.setPointerCapture(e.pointerId);
+    iniciarGravacao();
+  });
+
+  btn.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    pararEEnviar();
+  });
+
+  btn.addEventListener('pointercancel', (e) => {
+    e.preventDefault();
+    cancelarGravacao();
+  });
+}
+
+function iniciarGravacao() {
+  if (isGravando || !stream) return;
+  isGravando = true;
+  audioChunks = [];
+
+  try {
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+    mediaRecorder.start();
+
+    const btn = document.getElementById('micBtn');
+    btn.textContent = '🔴';
+    btn.classList.add('gravando');
+    document.getElementById('micStatus').textContent = '🔴 Gravando…';
+    document.getElementById('statusDot').className = 'dot gravando';
+    document.getElementById('statusLabel').textContent = 'Gravando';
+  } catch(e) {
+    showToast('Erro ao gravar: ' + e.message, 'erro');
+    isGravando = false;
+  }
+}
+
+async function pararEEnviar() {
+  if (!isGravando || !mediaRecorder) return;
+  isGravando = false;
+
+  const btn = document.getElementById('micBtn');
+  btn.textContent = '⏳';
+  btn.classList.remove('gravando');
+  document.getElementById('micStatus').textContent = '⏳ Transcrevendo…';
+
+  mediaRecorder.stop();
+
+  // Aguardar chunks
+  await new Promise(resolve => { mediaRecorder.onstop = resolve; });
+
+  const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+  // Enviar para Whisper via Worker
+  try {
+    const resp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {
+        'X-Mode': 'transcricao',
+        'X-Lang': meuIdioma,
+        'Content-Type': 'audio/webm'
+      },
+      body: audioBlob
+    });
+
+    if (!resp.ok) throw new Error('Erro na transcrição');
+
+    const data = await resp.json();
+    const texto = data.transcricao?.trim();
+
+    if (texto && texto.length > 0) {
+      // Enviar para Firebase
+      pushFn(salaRef, {
+        autor: meuNome,
+        idioma: meuIdioma,
+        bandeira: IDIOMAS[meuIdioma].bandeira,
+        texto: texto,
+        ts: Date.now()
+      });
+      document.getElementById('micStatus').textContent = '✅ Enviado!';
+    } else {
+      document.getElementById('micStatus').textContent = 'Nenhum áudio detectado';
+    }
+  } catch(e) {
+    showToast('Erro: ' + e.message, 'erro');
+    document.getElementById('micStatus').textContent = 'Erro ao enviar';
+  }
+
+  setTimeout(() => {
+    btn.textContent = '🎙️';
+    document.getElementById('micStatus').textContent = 'Segure o botão para falar';
+    document.getElementById('statusDot').className = 'dot online';
+    document.getElementById('statusLabel').textContent = 'Online';
+  }, 1500);
+}
+
+function cancelarGravacao() {
+  if (!isGravando) return;
+  isGravando = false;
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  const btn = document.getElementById('micBtn');
+  btn.textContent = '🎙️';
+  btn.classList.remove('gravando');
+  document.getElementById('micStatus').textContent = 'Segure o botão para falar';
+}
+
+// ===== EXIBIR MENSAGEM =====
+async function exibirMsg(msg) {
+  const container = document.getElementById('mensagens');
+  const emptyState = container.querySelector('.empty-state');
   if (emptyState) emptyState.remove();
 
-  const eMinha = fala.autor === meuNome;
-  const idiomaOrigem = fala.idioma;
-  let textoExibir = fala.texto;
+  const eMinha = msg.autor === meuNome;
+  let textoExibir = msg.texto;
 
-  // Traduzir se o idioma de origem for diferente do meu
-  if (idiomaOrigem !== meuIdioma) {
-    // Chave única por mensagem + idioma destino
-    const cacheKey = `${fala.ts}_${idiomaOrigem}_${meuIdioma}`;
+  if (msg.idioma !== meuIdioma) {
+    const cacheKey = `${msg.ts}_${msg.idioma}_${meuIdioma}`;
     if (cacheTraducoes[cacheKey]) {
       textoExibir = cacheTraducoes[cacheKey];
     } else {
       try {
-        console.log(`Traduzindo: "${fala.texto}" de ${idiomaOrigem} para ${meuIdioma}`);
-        const resp = await fetch(TRANSLATE_ENDPOINT, {
+        const resp = await fetch(WORKER_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            texto: fala.texto,
-            source: idiomaOrigem,
-            target: meuIdioma
-          })
+          headers: { 'Content-Type': 'application/json', 'X-Mode': 'traducao' },
+          body: JSON.stringify({ texto: msg.texto, source: msg.idioma, target: meuIdioma })
         });
-        console.log('Status Worker:', resp.status);
         if (resp.ok) {
           const data = await resp.json();
-          console.log('Tradução recebida:', data);
-          textoExibir = data.traducao || fala.texto;
+          textoExibir = data.traducao || msg.texto;
           cacheTraducoes[cacheKey] = textoExibir;
-        } else {
-          const err = await resp.text();
-          console.error('Worker erro:', err);
-          textoExibir = '[Sem tradução] ' + fala.texto;
         }
-      } catch(e) {
-        console.error('Erro na tradução:', e.message);
-        textoExibir = '[Erro de tradução] ' + fala.texto;
-      }
+      } catch(e) { textoExibir = msg.texto; }
     }
   }
-  // Se idiomaOrigem === meuIdioma: textoExibir já é fala.texto (sem tradução necessária)
 
   const isRTL = IDIOMAS[meuIdioma]?.rtl;
   const item = document.createElement('div');
-  item.className = `legenda-item ${eMinha ? 'minha' : ''} ${isRTL ? 'rtl' : ''}`;
-
-  // textoExibir = traduzido para meu idioma (ou original se mesmo idioma)
-  // fala.texto = texto original de quem falou
-  const mostrarOriginal = !eMinha && idiomaOrigem !== meuIdioma;
+  item.className = `msg-item ${eMinha ? 'minha' : ''} ${isRTL ? 'rtl' : ''}`;
+  item.style.direction = isRTL ? 'rtl' : 'ltr';
 
   item.innerHTML = `
-    <div class="legenda-autor">
-      <span>${fala.bandeira}</span>
-      <span>${fala.autor}</span>
-      ${mostrarOriginal ? `<span style="opacity:0.5;font-size:0.65rem"> → ${IDIOMAS[meuIdioma]?.bandeira} ${IDIOMAS[meuIdioma]?.nome}</span>` : ''}
+    <div class="msg-autor">
+      <span>${msg.bandeira}</span>
+      <span>${msg.autor}</span>
+      ${!eMinha && msg.idioma !== meuIdioma ? `<span style="opacity:0.5">→ ${IDIOMAS[meuIdioma]?.bandeira}</span>` : ''}
     </div>
-    <div class="legenda-texto">${textoExibir}</div>
-    ${mostrarOriginal ? `<div class="legenda-original">Original: ${fala.texto}</div>` : ''}
+    <div class="msg-texto">${textoExibir}</div>
+    ${!eMinha && msg.idioma !== meuIdioma ? `<div class="msg-original">${msg.texto}</div>` : ''}
   `;
 
-  area.appendChild(item);
-  area.scrollTop = area.scrollHeight;
+  container.appendChild(item);
+  container.scrollTop = container.scrollHeight;
 }
 
-// ============ MICROFONE ============
-
-
-window.iniciarMic = function() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    showToast('Use o Google Chrome!', 'erro');
-    return;
-  }
-
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = IDIOMAS[meuIdioma].speechLang;
-  recognition.continuous = true;
-  recognition.interimResults = true;
-
-  // Acumula fragmentos e envia após 2s de silêncio
-  let bufferTexto = '';
-  let timerEnvio = null;
-  let textoUltimoEnviado = '';
-
-  // Mesma lógica das Legendas ao Vivo — testada e funcionando no Android
-  let finalPhrases = [];
-  let lastResultIndex = 0;
-
-  function enviarFrase(phrases, interim) {
-    if (!pushFn || !salaRef || !phrases.length) return;
-    // Envia a última frase nova para o Firebase
-    const ultima = phrases[phrases.length - 1];
-    pushFn(salaRef, {
-      autor: meuNome,
-      idioma: meuIdioma,
-      bandeira: IDIOMAS[meuIdioma].bandeira,
-      texto: ultima,
-      ts: Date.now()
-    });
-    document.getElementById('interimPreview').textContent = interim || '';
-  }
-
-  recognition.onstart = () => {
-    isGravando = true;
-    lastResultIndex = 0;
-    finalPhrases = [];
-    document.getElementById('statusDot').classList.remove('online');
-    document.getElementById('statusDot').classList.add('ativo');
-    document.getElementById('statusLabel').textContent = 'Ao vivo';
-    document.getElementById('micStatus').textContent = '🔴 Gravando';
-  };
-
-  recognition.onresult = (event) => {
-    let interim = '';
-    let newFinal = '';
-
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        newFinal += t + ' ';
-      } else {
-        interim += t;
-      }
-    }
-
-    if (newFinal) {
-      const frases = newFinal.trim().split(/(?<=[.!?])\s+|(?<=\s{2,})/);
-      frases.forEach(f => {
-        const fraseLimpa = f.trim();
-        if (!fraseLimpa) return;
-        const recentes = finalPhrases.slice(-3);
-        let duplicada = false;
-        for (let j = 0; j < recentes.length; j++) {
-          const r = recentes[j];
-          if (fraseLimpa === r || r.includes(fraseLimpa) || (fraseLimpa.includes(r) && r.length > 3)) {
-            duplicada = true;
-            const idxReal = finalPhrases.length - recentes.length + j;
-            if (fraseLimpa.length > r.length) {
-              finalPhrases[idxReal] = fraseLimpa;
-              enviarFrase(finalPhrases, interim);
-            }
-            break;
-          }
-        }
-        if (!duplicada) {
-          finalPhrases.push(fraseLimpa);
-          enviarFrase(finalPhrases, interim);
-        }
-      });
-      if (finalPhrases.length > 50) finalPhrases = finalPhrases.slice(-50);
-    }
-
-    document.getElementById('interimPreview').textContent = interim;
-  };
-
-  recognition.onend = () => {
-    if (isGravando) {
-      setTimeout(() => {
-        if (isGravando) {
-          try { recognition.start(); } catch(e) {}
-        }
-      }, 300);
-    }
-  };
-
-  recognition.onerror = (e) => {
-    if (e.error === 'not-allowed') showToast('Permita o microfone nas configurações!', 'erro');
-  };
-
-  try { recognition.start(); } catch(e) { showToast('Erro ao iniciar microfone', 'erro'); }
-};
-
-window.pararMic = function() {
-  if (!isGravando) return;
-  isGravando = false;
-  if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
-  finalPhrases = [];
-  document.getElementById('statusDot').classList.add('online');
-  document.getElementById('statusDot').classList.remove('ativo');
-  document.getElementById('statusLabel').textContent = 'Online';
-  document.getElementById('interimPreview').textContent = '';
-  document.getElementById('micStatus').textContent = '🎙️ Ao vivo';
-};
-
+// ===== SAIR =====
 window.sair = function() {
-  pararMic();
+  cancelarGravacao();
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  msgIds.clear();
   cacheTraducoes = {};
-  document.getElementById('legendasArea').innerHTML = `
+  document.getElementById('mensagens').innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">🎙️</div>
-      <div class="empty-text">Pressione o botão e fale.<br>Todos ouvirão no seu idioma.</div>
+      <div class="empty-text">Segure o botão e fale.<br>Todos receberão no seu idioma.</div>
     </div>`;
-  document.body.style.direction = 'ltr';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('splash').classList.add('active');
 };
