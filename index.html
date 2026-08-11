@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Traduzaí — Conversas sem fronteiras</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0d07;
+  --surface: #111a0e;
+  --surface2: #162011;
+  --border: #1e3318;
+  --accent: #ffc20e;
+  --accent2: #f59e0b;
+  --text: #f0f0e8;
+  --muted: #7a8a72;
+  --green: #22c55e;
+  --red: #ef4444;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+html, body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ======= SPLASH ======= */
+#splash {
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.logo { font-size: 4rem; line-height: 1; }
+
+.app-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+}
+
+.app-sub {
+  font-size: 0.88rem;
+  color: var(--muted);
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.idioma-select-wrap {
+  width: 100%;
+  max-width: 340px;
+}
+
+.idioma-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.idioma-select {
+  width: 100%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.idioma-select:focus { border-color: var(--accent); }
+
+.form-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 340px;
+}
+
+.form-input {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.form-input:focus { border-color: var(--accent); }
+.form-input.codigo { text-transform: uppercase; letter-spacing: 0.2em; font-size: 1.1rem; }
+
+.btn-entrar {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  padding: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-entrar:active { transform: scale(0.97); }
+
+.idiomas-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-width: 340px;
+}
+
+.idioma-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* ======= SALA ======= */
+#sala { flex-direction: column; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 0.6rem; }
+
+.back-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.sala-info { font-size: 0.78rem; color: var(--muted); }
+.sala-codigo { font-weight: 900; color: var(--accent); font-size: 0.9rem; }
+.sala-idioma { font-size: 0.72rem; }
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 99px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.dot.online {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* MENSAGENS */
+.mensagens {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.msg-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+
+.msg-wrap.minha { align-self: flex-end; align-items: flex-end; }
+.msg-wrap.outra { align-self: flex-start; align-items: flex-start; }
+
+.msg-autor {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+  padding: 0 0.4rem;
+}
+
+.msg-balao {
+  border-radius: 18px;
+  padding: 0.8rem 1.1rem;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.msg-wrap.minha .msg-balao {
+  background: var(--accent);
+  color: #000;
+  border-bottom-right-radius: 4px;
+  font-weight: 700;
+}
+
+.msg-wrap.outra .msg-balao {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.msg-original {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  padding: 0 0.4rem;
+  font-style: italic;
+}
+
+.msg-texto { font-size: 0.92rem; line-height: 1.5; }
+.msg-hora { font-size: 0.62rem; color: rgba(0,0,0,0.4); margin-top: 0.3rem; text-align: right; }
+.msg-wrap.outra .msg-hora { color: var(--muted); }
+
+/* RTL para árabe */
+.rtl { direction: rtl; text-align: right; }
+
+/* Digitando */
+.digitando-aviso {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+  padding: 0 1rem 0.3rem;
+  flex-shrink: 0;
+}
+
+/* INPUT */
+.input-area {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.msg-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  max-height: 100px;
+  line-height: 1.4;
+}
+
+.msg-input:focus { border-color: var(--accent); }
+
+.btn-send {
+  width: 44px; height: 44px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+
+.btn-send:active { transform: scale(0.93); }
+
+/* SISTEMA */
+.msg-sistema {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--surface);
+  border-radius: 99px;
+  padding: 0.3rem 0.9rem;
+  align-self: center;
+  border: 1px solid var(--border);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: transform 0.3s;
+  z-index: 100;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.erro { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" class="screen active">
+  <div class="logo">🦜</div>
+  <div>
+    <div class="app-title">Traduzaí</div>
+    <p class="app-sub">Cada pessoa fala no seu idioma e lê tudo traduzido automaticamente em tempo real.</p>
+  </div>
+
+  <div class="idioma-select-wrap">
+    <span class="idioma-label" id="lbl-idioma">Meu idioma</span>
+    <select class="idioma-select" id="meuIdioma" onchange="trocarUI()">
+      <option value="pt">🇧🇷 Português</option>
+      <option value="en">🇺🇸 English</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="ar">🇸🇦 العربية</option>
+      <option value="pl">🇵🇱 Polski</option>
+      <option value="uk">🇺🇦 Українська</option>
+      <option value="zh">🇨🇳 中文</option>
+    </select>
+  </div>
+
+  <div class="form-wrap">
+    <input class="form-input" id="meuNome" maxlength="30" placeholder="Seu nome">
+    <input class="form-input codigo" id="codigoSala" maxlength="8" placeholder="SALA01" oninput="this.value=this.value.toUpperCase()">
+    <button class="btn-entrar" id="btnEntrar" onclick="entrar()">Entrar →</button>
+  </div>
+
+  <div class="idiomas-lista">
+    <span class="idioma-pill">🇧🇷 PT</span>
+    <span class="idioma-pill">🇺🇸 EN</span>
+    <span class="idioma-pill">🇪🇸 ES</span>
+    <span class="idioma-pill">🇩🇪 DE</span>
+    <span class="idioma-pill">🇫🇷 FR</span>
+    <span class="idioma-pill">🇸🇦 AR</span>
+    <span class="idioma-pill">🇵🇱 PL</span>
+    <span class="idioma-pill">🇺🇦 UK</span>
+    <span class="idioma-pill">🇨🇳 ZH</span>
+  </div>
+</div>
+
+<!-- SALA -->
+<div id="sala" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="sair()">← Sair</button>
+      <div>
+        <div class="sala-codigo" id="topSala">—</div>
+        <div class="sala-idioma" id="topIdioma">—</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="dot online" id="statusDot"></div>
+      <span id="statusLabel">Online</span>
+    </div>
+  </div>
+
+  <div class="mensagens" id="mensagens"></div>
+  <div class="digitando-aviso" id="digitandoAviso"></div>
+
+  <div class="input-area">
+    <textarea class="msg-input" id="msgInput" rows="1"
+      placeholder="Digite sua mensagem…"
+      oninput="autoResize(this)"
+      onkeydown="handleKey(event)"></textarea>
+    <button class="btn-send" onclick="enviar()">➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// ============ CONFIG ============
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDJMGcPp6iz4NnjSiDU7ihqQMkTX2rqr0A",
+  authDomain: "ambient-axiom-384901.firebaseapp.com",
+  databaseURL: "https://ambient-axiom-384901-default-rtdb.firebaseio.com",
+  projectId: "ambient-axiom-384901",
+  storageBucket: "ambient-axiom-384901.firebasestorage.app",
+  messagingSenderId: "914809989128",
+  appId: "1:914809989128:web:1415bf7a139fb9899649bd"
+};
+
+const TRANSLATE_ENDPOINT = "https://traduzai.dlfernandes.workers.dev/";
+
+// ============ IDIOMAS ============
+const IDIOMAS = {
+  pt: { nome: "Português", bandeira: "🇧🇷", placeholder: "Digite sua mensagem…", entrar: "Entrar →", sair: "← Sair", lblIdioma: "Meu idioma", lblNome: "Seu nome", lblSala: "Código da sala", online: "Online" },
+  en: { nome: "English", bandeira: "🇺🇸", placeholder: "Type your message…", entrar: "Enter →", sair: "← Leave", lblIdioma: "My language", lblNome: "Your name", lblSala: "Room code", online: "Online" },
+  es: { nome: "Español", bandeira: "🇪🇸", placeholder: "Escribe tu mensaje…", entrar: "Entrar →", sair: "← Salir", lblIdioma: "Mi idioma", lblNome: "Tu nombre", lblSala: "Código de sala", online: "En línea" },
+  de: { nome: "Deutsch", bandeira: "🇩🇪", placeholder: "Nachricht eingeben…", entrar: "Betreten →", sair: "← Verlassen", lblIdioma: "Meine Sprache", lblNome: "Ihr Name", lblSala: "Raumcode", online: "Online" },
+  fr: { nome: "Français", bandeira: "🇫🇷", placeholder: "Tapez votre message…", entrar: "Entrer →", sair: "← Quitter", lblIdioma: "Ma langue", lblNome: "Votre nom", lblSala: "Code de salle", online: "En ligne" },
+  ar: { nome: "العربية", bandeira: "🇸🇦", placeholder: "اكتب رسالتك…", entrar: "دخول ←", sair: "→ خروج", lblIdioma: "لغتي", lblNome: "اسمك", lblSala: "رمز الغرفة", online: "متصل", rtl: true },
+  pl: { nome: "Polski", bandeira: "🇵🇱", placeholder: "Wpisz wiadomość…", entrar: "Wejdź →", sair: "← Wyjdź", lblIdioma: "Mój język", lblNome: "Twoje imię", lblSala: "Kod pokoju", online: "Online" },
+  uk: { nome: "Українська", bandeira: "🇺🇦", placeholder: "Введіть повідомлення…", entrar: "Увійти →", sair: "← Вийти", lblIdioma: "Моя мова", lblNome: "Ваше ім'я", lblSala: "Код кімнати", online: "Онлайн" },
+  zh: { nome: "中文", bandeira: "🇨🇳", placeholder: "请输入消息…", entrar: "进入 →", sair: "← 退出", lblIdioma: "我的语言", lblNome: "您的姓名", lblSala: "房间代码", online: "在线" },
+};
+
+// ============ ESTADO ============
+let meuIdioma = 'pt';
+let meuNome = '';
+let codigoSala = '';
+let db = null;
+let salaRef = null;
+let cacheTraducoes = {};
+let msgIds = new Set();
+
+// ============ UI ============
+window.trocarUI = function() {
+  const sel = document.getElementById('meuIdioma');
+  meuIdioma = sel.value;
+  const info = IDIOMAS[meuIdioma];
+  document.getElementById('lbl-idioma').textContent = info.lblIdioma;
+  document.getElementById('meuNome').placeholder = info.lblNome;
+  document.getElementById('codigoSala').placeholder = info.lblSala || 'SALA01';
+  document.getElementById('btnEntrar').textContent = info.entrar;
+  if (info.rtl) {
+    document.body.style.direction = 'rtl';
+  } else {
+    document.body.style.direction = 'ltr';
+  }
+};
+
+// ============ ENTRAR ============
+window.entrar = async function() {
+  meuNome = document.getElementById('meuNome').value.trim();
+  codigoSala = document.getElementById('codigoSala').value.trim().toUpperCase();
+  meuIdioma = document.getElementById('meuIdioma').value;
+
+  if (!meuNome) { showToast(IDIOMAS[meuIdioma].lblNome + '?', 'erro'); return; }
+  if (codigoSala.length < 3) { showToast(IDIOMAS[meuIdioma].lblSala + '?', 'erro'); return; }
+
+  // Carregar Firebase dinamicamente
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js');
+    const { getDatabase, ref, push, onChildAdded, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
+
+    const app = initializeApp(FIREBASE_CONFIG, 'traduzai-' + Date.now());
+    db = getDatabase(app);
+    salaRef = ref(db, `traduzai/${codigoSala}/mensagens`);
+
+    // Configurar tela da sala
+    document.getElementById('topSala').textContent = codigoSala;
+    document.getElementById('topIdioma').textContent = IDIOMAS[meuIdioma].bandeira + ' ' + IDIOMAS[meuIdioma].nome;
+    document.getElementById('statusLabel').textContent = IDIOMAS[meuIdioma].online;
+    document.getElementById('msgInput').placeholder = IDIOMAS[meuIdioma].placeholder;
+    document.body.style.direction = IDIOMAS[meuIdioma].rtl ? 'rtl' : 'ltr';
+
+    // Escutar mensagens
+    onChildAdded(salaRef, async (snapshot) => {
+      const msg = snapshot.val();
+      const id = snapshot.key;
+      if (msgIds.has(id)) return;
+      msgIds.add(id);
+      await exibirMensagem(msg, id);
+    });
+
+    // Mensagem de entrada
+    push(salaRef, {
+      tipo: 'sistema',
+      texto: `${meuNome} ${IDIOMAS[meuIdioma].bandeira} entrou`,
+      ts: Date.now()
+    });
+
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('sala').classList.add('active');
+
+  } catch(e) {
+    showToast('Erro ao conectar: ' + e.message, 'erro');
+  }
+};
+
+// ============ EXIBIR MENSAGEM ============
+async function exibirMensagem(msg, id) {
+  const container = document.getElementById('mensagens');
+
+  if (msg.tipo === 'sistema') {
+    const el = document.createElement('div');
+    el.className = 'msg-sistema';
+    el.textContent = msg.texto;
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+    return;
+  }
+
+  const eMinha = msg.autor === meuNome;
+  const textoOriginal = msg.texto;
+  const idiomaOrigem = msg.idioma || 'pt';
+
+  // Traduzir se necessário
+  let textoTraduzido = textoOriginal;
+  if (idiomaOrigem !== meuIdioma) {
+    const cacheKey = `${id}_${meuIdioma}`;
+    if (cacheTraducoes[cacheKey]) {
+      textoTraduzido = cacheTraducoes[cacheKey];
+    } else {
+      try {
+        const resp = await fetch(TRANSLATE_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            texto: textoOriginal,
+            source: idiomaOrigem,
+            target: meuIdioma
+          })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          textoTraduzido = data.traducao || textoOriginal;
+          cacheTraducoes[cacheKey] = textoTraduzido;
+        }
+      } catch(e) {
+        textoTraduzido = textoOriginal;
+      }
+    }
+  }
+
+  const isRTL = IDIOMAS[meuIdioma]?.rtl;
+  const hora = new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const wrap = document.createElement('div');
+  wrap.className = `msg-wrap ${eMinha ? 'minha' : 'outra'}`;
+
+  wrap.innerHTML = `
+    ${!eMinha ? `<div class="msg-autor">${msg.autor} ${IDIOMAS[msg.idioma]?.bandeira || ''}</div>` : ''}
+    <div class="msg-balao ${isRTL ? 'rtl' : ''}">
+      <div class="msg-texto">${textoTraduzido}</div>
+      <div class="msg-hora">${hora}</div>
+    </div>
+    ${!eMinha && idiomaOrigem !== meuIdioma ? `<div class="msg-original">${textoOriginal}</div>` : ''}
+  `;
+
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ============ ENVIAR ============
+window.enviar = async function() {
+  const input = document.getElementById('msgInput');
+  const texto = input.value.trim();
+  if (!texto || !salaRef) return;
+
+  const { push } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js');
+
+  push(salaRef, {
+    tipo: 'msg',
+    autor: meuNome,
+    texto: texto,
+    idioma: meuIdioma,
+    ts: Date.now()
+  });
+
+  input.value = '';
+  input.style.height = 'auto';
+};
+
+window.handleKey = function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    window.enviar();
+  }
+};
+
+window.autoResize = function(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+};
+
+window.sair = function() {
+  msgIds.clear();
+  cacheTraducoes = {};
+  document.getElementById('mensagens').innerHTML = '';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('splash').classList.add('active');
+  document.body.style.direction = 'ltr';
+};
+
+// ============ TOAST ============
+window.showToast = function(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${tipo || ''} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+};
+</script>
+</body>
+</html>
