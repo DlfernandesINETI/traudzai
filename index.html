@@ -501,9 +501,10 @@ async function exibirFala(fala) {
   const idiomaOrigem = fala.idioma;
   let textoExibir = fala.texto;
 
-  // Traduzir se necessário
+  // Traduzir se o idioma de origem for diferente do meu
   if (idiomaOrigem !== meuIdioma) {
-    const cacheKey = `${fala.id || fala.ts}_${meuIdioma}`;
+    // Chave única por mensagem + idioma destino
+    const cacheKey = `${fala.ts}_${idiomaOrigem}_${meuIdioma}`;
     if (cacheTraducoes[cacheKey]) {
       textoExibir = cacheTraducoes[cacheKey];
     } else {
@@ -512,9 +513,9 @@ async function exibirFala(fala) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            texto: fala.texto,
-            source: idiomaOrigem,
-            target: meuIdioma
+            texto: fala.texto,    // texto original na língua de quem falou
+            source: idiomaOrigem, // idioma de quem falou
+            target: meuIdioma    // meu idioma (para onde traduzir)
           })
         });
         if (resp.ok) {
@@ -522,9 +523,13 @@ async function exibirFala(fala) {
           textoExibir = data.traducao || fala.texto;
           cacheTraducoes[cacheKey] = textoExibir;
         }
-      } catch(e) { textoExibir = fala.texto; }
+      } catch(e) {
+        console.error('Erro na tradução:', e);
+        textoExibir = fala.texto; // fallback: mostra original
+      }
     }
   }
+  // Se idiomaOrigem === meuIdioma: textoExibir já é fala.texto (sem tradução necessária)
 
   const isRTL = IDIOMAS[meuIdioma]?.rtl;
   const item = document.createElement('div');
@@ -562,7 +567,10 @@ function iniciarMic() {
   recognition.continuous = true;
   recognition.interimResults = true;
 
+  let ultimoIndice = 0;
+
   recognition.onstart = () => {
+    ultimoIndice = 0;
     isGravando = true;
     const btn = document.getElementById('micBtn');
     btn.textContent = '⏹ Parar de falar';
@@ -575,12 +583,18 @@ function iniciarMic() {
   recognition.onresult = (event) => {
     let interim = '';
     let final = '';
+
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
-      else interim += event.results[i][0].transcript;
+      if (i < ultimoIndice) continue;
+      if (event.results[i].isFinal) {
+        final += event.results[i][0].transcript + ' ';
+        ultimoIndice = i + 1;
+      } else {
+        interim += event.results[i][0].transcript;
+      }
     }
 
-    document.getElementById('interimPreview').textContent = interim || final;
+    document.getElementById('interimPreview').textContent = interim || (final ? '✓ ' + final : '');
 
     if (final.trim() && pushFn && salaRef) {
       pushFn(salaRef, {
