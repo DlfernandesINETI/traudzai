@@ -388,12 +388,8 @@ html, body {
 
   <div class="controles">
     <div class="interim-preview" id="interimPreview"></div>
-    <button class="mic-btn" id="micBtn"
-  onpointerdown="event.preventDefault(); iniciarMic()"
-  onpointerup="event.preventDefault(); pararMic()"
-  onpointerleave="pararMic()"
-  onpointercancel="pararMic()">
-  🎙️ Segure para falar
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+  🎙️ Toque para falar
 </button>
     <div class="participantes-row" id="participantesRow">
       <span>Sala:</span>
@@ -567,7 +563,10 @@ async function exibirFala(fala) {
 }
 
 // ============ MICROFONE ============
-// Botão press-and-hold — não precisa de toggle
+window.toggleMic = function() {
+  if (isGravando) pararMic();
+  else iniciarMic();
+};
 
 window.iniciarMic = function() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -578,7 +577,7 @@ window.iniciarMic = function() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = IDIOMAS[meuIdioma].speechLang;
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
 
   // Acumula fragmentos e envia após 2s de silêncio
@@ -586,34 +585,28 @@ window.iniciarMic = function() {
   let timerEnvio = null;
   let textoUltimoEnviado = '';
 
-  let frasePendente = '';
-  let timerFrase = null;
-  let textosFimDeGravacao = new Set(); // guarda textos já enviados nesta sessão
-  let ultimoInterim = ''; // rastrear último interim para detectar reinício
+  // Mesma lógica das Legendas ao Vivo — testada e funcionando no Android
+  let finalPhrases = [];
+  let lastResultIndex = 0;
 
-  function enviarFrase(texto) {
-    if (!texto.trim() || !pushFn || !salaRef) return;
-    const t = texto.trim();
-    if (textosFimDeGravacao.has(t)) return; // já enviamos isso
-    textosFimDeGravacao.add(t);
-    if (textosFimDeGravacao.size > 30) textosFimDeGravacao.clear();
-
+  function enviarFrase(phrases, interim) {
+    if (!pushFn || !salaRef || !phrases.length) return;
+    // Envia a última frase nova para o Firebase
+    const ultima = phrases[phrases.length - 1];
     pushFn(salaRef, {
       autor: meuNome,
       idioma: meuIdioma,
       bandeira: IDIOMAS[meuIdioma].bandeira,
-      texto: t,
+      texto: ultima,
       ts: Date.now()
     });
-    frasePendente = '';
-    ultimoInterim = '';
-    document.getElementById('interimPreview').textContent = '';
+    document.getElementById('interimPreview').textContent = interim || '';
   }
 
   recognition.onstart = () => {
     isGravando = true;
-    frasePendente = '';
-    ultimoInterim = '';
+    lastResultIndex = 0;
+    finalPhrases = [];
     const btn = document.getElementById('micBtn');
     btn.textContent = '🔴 Ouvindo…';
     btn.classList.add('gravando');
@@ -624,30 +617,55 @@ window.iniciarMic = function() {
 
   recognition.onresult = (event) => {
     let interim = '';
+    let newFinal = '';
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const t = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        // Só adiciona se não for repetição do que já temos pendente
-        if (!frasePendente.trim().endsWith(t.trim())) {
-          frasePendente += t + ' ';
-        }
-        clearTimeout(timerFrase);
-        timerFrase = setTimeout(() => enviarFrase(frasePendente), 600);
+        newFinal += t + ' ';
       } else {
         interim += t;
       }
     }
 
-    ultimoInterim = interim;
-    document.getElementById('interimPreview').textContent = interim || frasePendente;
+    if (newFinal) {
+      const frases = newFinal.trim().split(/(?<=[.!?])\s+|(?<=\s{2,})/);
+      frases.forEach(f => {
+        const fraseLimpa = f.trim();
+        if (!fraseLimpa) return;
+        const recentes = finalPhrases.slice(-3);
+        let duplicada = false;
+        for (let j = 0; j < recentes.length; j++) {
+          const r = recentes[j];
+          if (fraseLimpa === r || r.includes(fraseLimpa) || (fraseLimpa.includes(r) && r.length > 3)) {
+            duplicada = true;
+            const idxReal = finalPhrases.length - recentes.length + j;
+            if (fraseLimpa.length > r.length) {
+              finalPhrases[idxReal] = fraseLimpa;
+              enviarFrase(finalPhrases, interim);
+            }
+            break;
+          }
+        }
+        if (!duplicada) {
+          finalPhrases.push(fraseLimpa);
+          enviarFrase(finalPhrases, interim);
+        }
+      });
+      if (finalPhrases.length > 50) finalPhrases = finalPhrases.slice(-50);
+    }
+
+    document.getElementById('interimPreview').textContent = interim;
   };
 
   recognition.onend = () => {
-    // Frase processada — enviar o que ficou pendente e parar
-    clearTimeout(timerFrase);
-    enviarFrase(frasePendente);
-    if (isGravando) pararMic();
+    if (isGravando) {
+      setTimeout(() => {
+        if (isGravando) {
+          try { recognition.start(); } catch(e) {}
+        }
+      }, 300);
+    }
   };
 
   recognition.onerror = (e) => {
@@ -660,10 +678,8 @@ window.iniciarMic = function() {
 window.pararMic = function() {
   if (!isGravando) return;
   isGravando = false;
-  clearTimeout(timerFrase);
-  enviarFrase(frasePendente);
-  textosFimDeGravacao.clear();
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+  finalPhrases = [];
   const btn = document.getElementById('micBtn');
   btn.textContent = '🎙️ Segure para falar';
   btn.classList.remove('gravando');
