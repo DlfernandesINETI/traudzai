@@ -583,28 +583,36 @@ function iniciarMic() {
   let timerEnvio = null;
   let textoUltimoEnviado = '';
 
-  // Solução definitiva: enviar apenas resultados finais NOVOS
-  // usando o índice global do evento para nunca reprocessar
-  let maxResultIndex = -1;
   let frasePendente = '';
   let timerFrase = null;
+  let textosFimDeGravacao = new Set(); // guarda textos já enviados nesta sessão
+  let ultimoInterim = ''; // rastrear último interim para detectar reinício
 
   function enviarFrase(texto) {
     if (!texto.trim() || !pushFn || !salaRef) return;
+    const t = texto.trim();
+    if (textosFimDeGravacao.has(t)) return; // já enviamos isso
+    textosFimDeGravacao.add(t);
+    if (textosFimDeGravacao.size > 30) textosFimDeGravacao.clear();
+
     pushFn(salaRef, {
       autor: meuNome,
       idioma: meuIdioma,
       bandeira: IDIOMAS[meuIdioma].bandeira,
-      texto: texto.trim(),
+      texto: t,
       ts: Date.now()
     });
     frasePendente = '';
+    ultimoInterim = '';
     document.getElementById('interimPreview').textContent = '';
   }
 
   recognition.onstart = () => {
     isGravando = true;
-    // NÃO resetar maxResultIndex aqui — isso é o controle chave
+    // Detectar reinício do Android: se há frase pendente, ela já foi enviada
+    // Não acumular mais no buffer após reinício
+    frasePendente = '';
+    ultimoInterim = '';
     const btn = document.getElementById('micBtn');
     btn.textContent = '⏹ Parar de falar';
     btn.classList.add('gravando');
@@ -617,25 +625,20 @@ function iniciarMic() {
     let interim = '';
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      // Pular resultados que já processamos antes
-      if (i <= maxResultIndex) continue;
-
       const t = event.results[i][0].transcript;
-
       if (event.results[i].isFinal) {
-        maxResultIndex = i; // marcar como processado
-        frasePendente += t + ' ';
-
-        // Enviar após pequena pausa para acumular fragmentos próximos
+        // Só adiciona se não for repetição do que já temos pendente
+        if (!frasePendente.trim().endsWith(t.trim())) {
+          frasePendente += t + ' ';
+        }
         clearTimeout(timerFrase);
-        timerFrase = setTimeout(() => {
-          enviarFrase(frasePendente);
-        }, 800);
+        timerFrase = setTimeout(() => enviarFrase(frasePendente), 600);
       } else {
         interim += t;
       }
     }
 
+    ultimoInterim = interim;
     document.getElementById('interimPreview').textContent = interim || frasePendente;
   };
 
@@ -655,7 +658,8 @@ function iniciarMic() {
 function pararMic() {
   isGravando = false;
   clearTimeout(timerFrase);
-  enviarFrase(frasePendente); // envia o que ficou pendente
+  enviarFrase(frasePendente);
+  textosFimDeGravacao.clear(); // limpar ao parar
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
   const btn = document.getElementById('micBtn');
   btn.textContent = '🎙️ Pressionar para falar';
