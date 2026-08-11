@@ -388,12 +388,10 @@ html, body {
 
   <div class="controles">
     <div class="interim-preview" id="interimPreview"></div>
-    <button class="mic-btn" id="micBtn" onclick="toggleMic()">
-  🎙️ Toque para falar
-</button>
     <div class="participantes-row" id="participantesRow">
       <span>Sala:</span>
       <span class="part-badge" id="partBadge">—</span>
+      <span class="part-badge" style="background:var(--surface2);color:var(--green)" id="micStatus">🎙️ Ao vivo</span>
     </div>
   </div>
 </div>
@@ -488,6 +486,9 @@ window.entrar = async function() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('sala').classList.add('active');
 
+    // Iniciar microfone automaticamente
+    setTimeout(() => iniciarMic(), 500);
+
   } catch(e) {
     showToast('Erro ao conectar: ' + e.message, 'erro');
   }
@@ -563,10 +564,7 @@ async function exibirFala(fala) {
 }
 
 // ============ MICROFONE ============
-window.toggleMic = function() {
-  if (isGravando) pararMic();
-  else iniciarMic();
-};
+
 
 window.iniciarMic = function() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -607,12 +605,10 @@ window.iniciarMic = function() {
     isGravando = true;
     lastResultIndex = 0;
     finalPhrases = [];
-    const btn = document.getElementById('micBtn');
-    btn.textContent = '🔴 Ouvindo…';
-    btn.classList.add('gravando');
     document.getElementById('statusDot').classList.remove('online');
     document.getElementById('statusDot').classList.add('ativo');
     document.getElementById('statusLabel').textContent = 'Ao vivo';
+    document.getElementById('micStatus').textContent = '🔴 Gravando';
   };
 
   recognition.onresult = (event) => {
@@ -680,18 +676,15 @@ window.pararMic = function() {
   isGravando = false;
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
   finalPhrases = [];
-  const btn = document.getElementById('micBtn');
-  btn.textContent = '🎙️ Segure para falar';
-  btn.classList.remove('gravando');
   document.getElementById('statusDot').classList.add('online');
   document.getElementById('statusDot').classList.remove('ativo');
   document.getElementById('statusLabel').textContent = 'Online';
   document.getElementById('interimPreview').textContent = '';
+  document.getElementById('micStatus').textContent = '🎙️ Ao vivo';
 };
 
 window.sair = function() {
   pararMic();
-  msgIds.clear();
   cacheTraducoes = {};
   document.getElementById('legendasArea').innerHTML = `
     <div class="empty-state">
