@@ -250,10 +250,10 @@ html, body {
   <div class="logo">🦜</div>
   <div>
     <div class="app-title">Traduzaí</div>
-    <p class="app-sub">Fale no seu idioma. Todos entendem no deles. Em tempo real.</p>
+    <p class="app-sub" id="appSub">Fale no seu idioma. Todos entendem no deles. Em tempo real.</p>
   </div>
   <div class="form-wrap">
-    <select class="idioma-select" id="meuIdioma">
+    <select class="idioma-select" id="meuIdioma" onchange="trocarUI()">
       <option value="pt">🇧🇷 Português</option>
       <option value="en">🇺🇸 English</option>
       <option value="es">🇪🇸 Español</option>
@@ -266,7 +266,7 @@ html, body {
     </select>
     <input class="form-input" id="meuNome" maxlength="30" placeholder="Seu nome">
     <input class="form-input codigo" id="codigoSala" maxlength="8" placeholder="SALA01" oninput="this.value=this.value.toUpperCase()">
-    <button class="btn-entrar" onclick="entrar()">Entrar na sala →</button>
+    <button class="btn-entrar" id="btnEntrar" onclick="entrar()">Entrar na sala →</button>
   </div>
   <div class="idiomas-pills">
     <span class="pill">🇧🇷 PT</span><span class="pill">🇺🇸 EN</span>
@@ -281,7 +281,7 @@ html, body {
 <div id="sala" class="screen">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:0.6rem">
-      <button class="back-btn" onclick="sair()">← Sair</button>
+      <button class="back-btn" id="btnSair" onclick="sair()">← Sair</button>
       <div>
         <div class="sala-codigo" id="topSala">—</div>
         <div class="sala-idioma" id="topIdioma">—</div>
@@ -305,7 +305,7 @@ html, body {
     <div class="mic-btn-wrap">
       <button class="mic-btn" id="micBtn">🎙️</button>
     </div>
-    <div class="mic-hint">Segure para falar • Solte para enviar</div>
+    <div class="mic-hint" id="micHint">Segure para falar • Solte para enviar</div>
     <span class="sala-badge" id="salaBadge">—</span>
   </div>
 </div>
@@ -326,15 +326,15 @@ const FIREBASE_CONFIG = {
 const WORKER_URL = "https://traduzai.dlfernandes.workers.dev/";
 
 const IDIOMAS = {
-  pt: { nome: "Português", bandeira: "🇧🇷" },
-  en: { nome: "English", bandeira: "🇺🇸" },
-  es: { nome: "Español", bandeira: "🇪🇸" },
-  de: { nome: "Deutsch", bandeira: "🇩🇪" },
-  fr: { nome: "Français", bandeira: "🇫🇷" },
-  zh: { nome: "中文", bandeira: "🇨🇳" },
-  ar: { nome: "العربية", bandeira: "🇸🇦", rtl: true },
-  pl: { nome: "Polski", bandeira: "🇵🇱" },
-  uk: { nome: "Українська", bandeira: "🇺🇦" },
+  pt: { nome: "Português", bandeira: "🇧🇷", sub: "Fale no seu idioma. Todos entendem no deles.", nome_placeholder: "Seu nome", sala_placeholder: "SALA01", entrar: "Entrar na sala →", segure: "Segure o botão para falar", solte: "Segure para falar • Solte para enviar", sair: "← Sair", online: "Online", gravando: "Gravando", transcrevendo: "⏳ Transcrevendo…", enviado: "✅ Enviado!", nenhum: "Nenhum áudio detectado", erro: "Erro ao enviar", segure_hint: "Segure o botão para falar" },
+  en: { nome: "English", bandeira: "🇺🇸", sub: "Speak your language. Everyone understands theirs.", nome_placeholder: "Your name", sala_placeholder: "ROOM01", entrar: "Join room →", segure: "Hold button to speak", solte: "Hold to speak • Release to send", sair: "← Leave", online: "Online", gravando: "Recording", transcrevendo: "⏳ Transcribing…", enviado: "✅ Sent!", nenhum: "No audio detected", erro: "Send error", segure_hint: "Hold button to speak" },
+  es: { nome: "Español", bandeira: "🇪🇸", sub: "Habla tu idioma. Todos entienden el suyo.", nome_placeholder: "Tu nombre", sala_placeholder: "SALA01", entrar: "Entrar a la sala →", segure: "Mantén para hablar", solte: "Mantén para hablar • Suelta para enviar", sair: "← Salir", online: "En línea", gravando: "Grabando", transcrevendo: "⏳ Transcribiendo…", enviado: "✅ Enviado!", nenhum: "Sin audio", erro: "Error al enviar", segure_hint: "Mantén el botón para hablar" },
+  de: { nome: "Deutsch", bandeira: "🇩🇪", sub: "Sprechen Sie Ihre Sprache. Alle verstehen ihre.", nome_placeholder: "Ihr Name", sala_placeholder: "RAUM01", entrar: "Raum betreten →", segure: "Halten zum Sprechen", solte: "Halten zum Sprechen • Loslassen zum Senden", sair: "← Verlassen", online: "Online", gravando: "Aufnahme", transcrevendo: "⏳ Transkribieren…", enviado: "✅ Gesendet!", nenhum: "Kein Audio", erro: "Sendefehler", segure_hint: "Taste gedrückt halten zum Sprechen" },
+  fr: { nome: "Français", bandeira: "🇫🇷", sub: "Parlez votre langue. Tout le monde comprend la sienne.", nome_placeholder: "Votre nom", sala_placeholder: "SALLE01", entrar: "Entrer dans la salle →", segure: "Maintenir pour parler", solte: "Maintenez pour parler • Relâchez pour envoyer", sair: "← Quitter", online: "En ligne", gravando: "Enregistrement", transcrevendo: "⏳ Transcription…", enviado: "✅ Envoyé!", nenhum: "Aucun audio", erro: "Erreur d'envoi", segure_hint: "Maintenir le bouton pour parler" },
+  zh: { nome: "中文", bandeira: "🇨🇳", sub: "用您的语言说话。每个人都能理解自己的语言。", nome_placeholder: "您的姓名", sala_placeholder: "房间01", entrar: "进入房间 →", segure: "按住说话", solte: "按住说话 • 松开发送", sair: "← 退出", online: "在线", gravando: "录音中", transcrevendo: "⏳ 转录中…", enviado: "✅ 已发送!", nenhum: "未检测到音频", erro: "发送错误", segure_hint: "按住按钮说话" },
+  ar: { nome: "العربية", bandeira: "🇸🇦", rtl: true, sub: "تحدث بلغتك. الجميع يفهم لغته.", nome_placeholder: "اسمك", sala_placeholder: "غرفة01", entrar: "← دخول الغرفة", segure: "اضغط مع الاستمرار للتحدث", solte: "اضغط للتحدث • اترك للإرسال", sair: "خروج →", online: "متصل", gravando: "تسجيل", transcrevendo: "⏳ نسخ…", enviado: "✅ أُرسل!", nenhum: "لم يُكتشف صوت", erro: "خطأ في الإرسال", segure_hint: "اضغط مع الاستمرار للتحدث" },
+  pl: { nome: "Polski", bandeira: "🇵🇱", sub: "Mów w swoim języku. Wszyscy rozumieją swój.", nome_placeholder: "Twoje imię", sala_placeholder: "POKÓJ01", entrar: "Wejdź do pokoju →", segure: "Przytrzymaj aby mówić", solte: "Przytrzymaj aby mówić • Puść aby wysłać", sair: "← Wyjdź", online: "Online", gravando: "Nagrywanie", transcrevendo: "⏳ Transkrypcja…", enviado: "✅ Wysłano!", nenhum: "Brak audio", erro: "Błąd wysyłania", segure_hint: "Przytrzymaj przycisk aby mówić" },
+  uk: { nome: "Українська", bandeira: "🇺🇦", sub: "Говоріть своєю мовою. Всі розуміють свою.", nome_placeholder: "Ваше ім'я", sala_placeholder: "КІМНАТА01", entrar: "Увійти в кімнату →", segure: "Утримуйте для розмови", solte: "Утримуйте для розмови • Відпустіть для надсилання", sair: "← Вийти", online: "Онлайн", gravando: "Запис", transcrevendo: "⏳ Транскрипція…", enviado: "✅ Надіслано!", nenhum: "Аудіо не виявлено", erro: "Помилка надсилання", segure_hint: "Утримуйте кнопку для розмови" },
 };
 
 let meuIdioma = 'pt';
@@ -351,6 +351,23 @@ let mediaRecorder = null;
 let audioChunks = [];
 let isGravando = false;
 let stream = null;
+
+// ===== TROCAR UI =====
+window.trocarUI = function() {
+  const lang = document.getElementById('meuIdioma').value;
+  const info = IDIOMAS[lang];
+  if (!info) return;
+
+  // Atualizar textos da splash
+  document.getElementById('appSub').textContent = info.sub;
+  document.getElementById('meuNome').placeholder = info.nome_placeholder;
+  document.getElementById('codigoSala').placeholder = info.sala_placeholder;
+  document.getElementById('btnEntrar').textContent = info.entrar;
+
+  // RTL para árabe
+  document.body.style.direction = info.rtl ? 'rtl' : 'ltr';
+  document.body.style.textAlign = info.rtl ? 'right' : 'left';
+};
 
 // ===== ENTRAR =====
 window.entrar = async function() {
@@ -386,9 +403,14 @@ window.entrar = async function() {
       await exibirMsg(msg);
     });
 
+    const ui = IDIOMAS[meuIdioma];
     document.getElementById('topSala').textContent = codigoSala;
-    document.getElementById('topIdioma').textContent = IDIOMAS[meuIdioma].bandeira + ' ' + IDIOMAS[meuIdioma].nome;
+    document.getElementById('topIdioma').textContent = ui.bandeira + ' ' + ui.nome;
     document.getElementById('salaBadge').textContent = codigoSala;
+    document.getElementById('btnSair').textContent = ui.sair;
+    document.getElementById('micStatus').textContent = ui.segure_hint;
+    document.getElementById('micHint').textContent = ui.solte;
+    document.getElementById('statusLabel').textContent = ui.online;
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('sala').classList.add('active');
@@ -437,7 +459,7 @@ function iniciarGravacao() {
     const btn = document.getElementById('micBtn');
     btn.textContent = '🔴';
     btn.classList.add('gravando');
-    document.getElementById('micStatus').textContent = '🔴 Gravando…';
+    document.getElementById('micStatus').textContent = '🔴 ' + IDIOMAS[meuIdioma].gravando + '…';
     document.getElementById('statusDot').className = 'dot gravando';
     document.getElementById('statusLabel').textContent = 'Gravando';
   } catch(e) {
@@ -453,7 +475,7 @@ async function pararEEnviar() {
   const btn = document.getElementById('micBtn');
   btn.textContent = '⏳';
   btn.classList.remove('gravando');
-  document.getElementById('micStatus').textContent = '⏳ Transcrevendo…';
+  document.getElementById('micStatus').textContent = IDIOMAS[meuIdioma].transcrevendo;
 
   mediaRecorder.stop();
 
@@ -488,20 +510,20 @@ async function pararEEnviar() {
         texto: texto,
         ts: Date.now()
       });
-      document.getElementById('micStatus').textContent = '✅ Enviado!';
+      document.getElementById('micStatus').textContent = IDIOMAS[meuIdioma].enviado;
     } else {
-      document.getElementById('micStatus').textContent = 'Nenhum áudio detectado';
+      document.getElementById('micStatus').textContent = IDIOMAS[meuIdioma].nenhum;
     }
   } catch(e) {
     showToast('Erro: ' + e.message, 'erro');
-    document.getElementById('micStatus').textContent = 'Erro ao enviar';
+    document.getElementById('micStatus').textContent = IDIOMAS[meuIdioma].erro;
   }
 
   setTimeout(() => {
     btn.textContent = '🎙️';
-    document.getElementById('micStatus').textContent = 'Segure o botão para falar';
+    document.getElementById('micStatus').textContent = IDIOMAS[meuIdioma].segure_hint;
     document.getElementById('statusDot').className = 'dot online';
-    document.getElementById('statusLabel').textContent = 'Online';
+    document.getElementById('statusLabel').textContent = IDIOMAS[meuIdioma].online;
   }, 1500);
 }
 
